@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <dirent.h>
+
+int main(void){
+	DIR *diretorioAtual;
+	diretorioAtual = opendir(".");
+
+	struct dirent *dir;
+
+	if (diretorioAtual != NULL){
+		while ((dir = readdir(diretorioAtual)) != NULL)
+			printf("%s ", dir->d_name);
+		putchar('\n');
+		closedir(diretorioAtual);
+	} else
+		printf("Something went wrong! %s\n", strerror(errno));
+
+	return 0;
+}

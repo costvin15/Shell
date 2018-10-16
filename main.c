@@ -8,38 +8,40 @@
 #include <readline/readline.h>
 
 int main(int argc, char **argv){
-    char *inserido, **matrizDeArgumentos;
-    int i, pid, statusExecv, statusPid;
-    while (1){
-        inserido = readline("macashell>> ");
-        matrizDeArgumentos = fraseParaPalavras(inserido);
+	char *inserido, **matrizDeComandos;
+    	int i, pid, statusExecv, statusPid;
+    	while (1){
+		inserido = readline("macashell>> ");
+        	matrizDeComandos = fraseParaPalavras(inserido);
 
-        if (strcmp(matrizDeArgumentos[0], "sair") == 0)
-            exit(1);
+		const char **argumentos = (const char **) malloc((contaPalavras(inserido) + 2) * sizeof(char *));
+		if (contaPalavras(inserido) > 1)
+			for (i = 0; i < contaPalavras(inserido); i++)
+				argumentos[i] = matrizDeComandos[i];
+
+        	if (strcmp(matrizDeComandos[0], "sair") == 0)
+            		exit(1);
     
-        pid = fork();
+       		pid = fork();
 
-        if (pid == 0){
-            // Se o PID é zero, então esse processo é um processo-filho
-            statusExecv = execv(matrizDeArgumentos[0], matrizDeArgumentos[0]);
+		if (pid == 0){
+            		// Se o PID é zero, então esse processo é um processo-filho
+            		if (contaPalavras(inserido) > 1)
+				statusExecv = execv(matrizDeComandos[0], (char **) argumentos);
+			else
+				statusExecv = execv(matrizDeComandos[0], NULL);
+            		if (statusExecv == -1)
+                		printf("Comando desconhecido\n");
+            		return 0;
+        	} else 
+            		// Se o PID não é zero, então esse processo é um processo-pai
+            		waitpid(-1, &statusPid, 0);
 
-            for (int j = 0; matrizDeArgumentos[0][j] != '\0'; j++)
-                printf("-> %c\n", matrizDeArgumentos[0][j]);
-            
-            if (statusExecv == -1)
-                printf("Comando desconhecido\n");
+        	for (i = 0; i < contaPalavras(inserido); i++)
+            		free(matrizDeComandos[i]);
+        	free(matrizDeComandos);        
+        	free(inserido);
+    	}
 
-            return 0;
-        } else {
-            // Se o PID não é zero, então esse processo é um processo-pai
-            waitpid(-1, &statusPid, 0);
-        }
-
-        for (i = 0; i < contaPalavras(inserido); i++)
-            free(matrizDeArgumentos[i]);
-        free(matrizDeArgumentos);        
-        free(inserido);
-    }
-
-    return 0;
+   	return 0;
 }
