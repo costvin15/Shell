@@ -10,8 +10,14 @@ int main(void){
 	struct dirent *dir;
 
 	if (diretorioAtual != NULL){
-		while ((dir = readdir(diretorioAtual)) != NULL)
+		while ((dir = readdir(diretorioAtual)) != NULL){
 			printf("%s ", dir->d_name);
+			if (dir->d_type == DT_DIR)
+				printf(" (pasta)");
+			else if(dir->d_type == DT_REG)
+				printf(" (arquivo)");
+			putchar('\n');
+		}
 		putchar('\n');
 		closedir(diretorioAtual);
 	} else
